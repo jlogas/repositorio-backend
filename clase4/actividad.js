@@ -1,50 +1,40 @@
 const fs = require("fs");
 
-const productos = []
+
 
 class ProductManager {
 
     static countId = 0
 
-    constructor(title, description, price, thumbnail, code, stock){
-        this.path = "./files.json",  
+    constructor(){
+        this.path = "./files.json"
+        this.productos = [] 
+    }
+
+    addProduct= async(title, description, price, thumbnail, code, stock) =>{
         
-        this.title = title,
-        this.description = description,
-        this.price = price,
-        this.thumbnail = thumbnail,
-        this.code = code,
-        this.stock = stock   
+        ProductManager.countId++
+
+        let newProduct ={
+            title,
+            description,
+            price,
+            thumbnail,
+            code,
+            stock,
+            id: ProductManager.countId,
+        }
+        this.productos.push(newProduct)
+        fs.promises.writeFile(this.path,JSON.stringify(this.productos))
     }
 
-    contadorId(){
-      let id = productos.length
-      id = id+1
-      return id
-
-    }
     //id, title, description, price, thumbnail, code, stock
-    addProduct(){
-        console.log(this.title)
-        let index = this.contadorId()
-        let id = index
-        let title = this.title
-        let description = this.description
-        let price = this.price
-        let thumbnail = this.thumbnail
-        let code = this.code
-        let stock = this.stock
-        const product = {id, title, description, price, thumbnail, code, stock}
-        productos.push(product)
-        fs.promises.writeFile(this.path, JSON.stringify(productos))
-        return productos
-    }
+ 
 
      getProducts= async ()=>{
 
         if (fs.existsSync(this.path)) {
             const data = await fs.promises.readFile(this.path, 'utf-8');
-            console.log(data);
             const arrayJava = JSON.parse(data);
             console.log(arrayJava);
             return arrayJava
@@ -60,10 +50,11 @@ class ProductManager {
      }
     
      deleteProducts = async(id) =>{
-        let arrayJava = await this.getProducts()
+        let arrayJava = await this.getProducts();
         let arrayFilter = arrayJava.filter(producto => producto.id != id)
-        console.log(arrayFilter);
         console.log("producto eliminado");
+        console.log(arrayFilter);
+        await fs.promises.writeFile(this.path, JSON.stringify(arrayFilter));
      };
 
       updateProducts = async ({id, ...producto}) =>{
@@ -77,35 +68,17 @@ class ProductManager {
 
     
 
-    // 
-
-    //
 
 
-const producto1 = new ProductManager("product1", "ejemplo", 30, "Sin imagen", "acb123", 25)
-const producto2 = new ProductManager("producto2", "ejemplo2", 2, "Sin imagen2", "acb1232", 2)
-const producto3 = new ProductManager("producto2", "ejemplo2", 2, "Sin imagen2", "acb1232", 2)
+const producto = new ProductManager()
 
+producto.addProduct("product1", "ejemplo", 30, "Sin imagen", "acb123", 25)
+producto.addProduct("product2", "ejemplo", 25, "Sin imagen", "acbqewqew", 1)
+producto.addProduct("product3", "ejemplo", 35, "Sin imagen", "a31313ewqew", 7)
+producto.getProductByid(2)
+producto.deleteProducts(2)
+      
 
-// producto1.addProduct("product1", "ejemplo", 30, "Sin imagen", "acb123", 25)
-producto1.addProduct()
-producto2.addProduct()
-producto3.addProduct()
-console.log("------------read");
-producto3.getProducts()
-console.log("--------------- delete");
-producto1.deleteProducts(1)
-producto1.updateProducts(
-    {
-        id: 3,
-        title: 'producto nuevo',
-        description: 'ejemplo nuevo',
-        price: 2,
-        thumbnail: 'Sin imagen2',
-        code: 'acb1232',
-        stock: 2
-      }
-)
 
 
 // console.log(producto1.contadorId())
